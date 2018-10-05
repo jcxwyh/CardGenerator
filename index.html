@@ -129,17 +129,43 @@
             canvasDownload(".qrcode canvas",name);
         });
 
+        function isPC(){
+            /**
+             * PC:
+             *    火狐 : Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:61.0) Gecko/20100101 Firefox/61.0
+             *    谷歌 : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36
+             *    edge : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134
+             *
+             *
+             */
+
+            var user = navigator.userAgent;
+            if(user.indexOf("Windows") > -1 || user.indexOf("windows") > -1){
+                return true;
+            }
+            return false;
+        }
+
+
         function canvasDownload(selector,name){
             var canvas = document.querySelector(selector);
             var url = canvas.toDataURL("image/png");
+            if(isPC()){
+                var a = document.createElement('a');
+                var clickEvent = new MouseEvent("click");
 
-            var a = document.createElement('a');
-            var clickEvent = new MouseEvent("click");
-
-            a.download = name + "_hi.png";
-            a.href = url;
-            a.dispatchEvent(clickEvent);
+                a.download = name + "_hi.png";
+                a.href = url;
+                a.dispatchEvent(clickEvent);
+            }else{
+                plus.gallery.save(url,function(){
+                    alert("保存成功！");
+                },function(){
+                    alert("保存失败！");
+                });
+            }
         }
+
 
         /**
          * 解决中文乱码
