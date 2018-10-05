@@ -81,7 +81,7 @@
             <div class="modal-content">
                 <!-- 模态框头部 -->
                 <div class="modal-header">
-                    <h4 class="modal-title">模态框头部</h4>
+                    <h4 class="modal-title">二维码信息</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <!-- 模态框主体 -->
@@ -92,6 +92,7 @@
                 </div>
                 <!-- 模态框底部 -->
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-info save-qrcode">保存</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
                 </div>
             </div>
@@ -116,13 +117,36 @@
             var coreStr = "";
             coreStr += ("FN:" + name + "\nTEL;WORK:" + tel + "\nORG:" + company + "\nADR;WORK:" + addr + "\nTITLE:" + job + "\nEMAIL:" + email+ "\nNOTE:" + note +"\n");
             var qrCodeStr = "BEGIN:VCARD\n" + coreStr + "END:VCARD";
-            alert(qrCodeStr);
 
-            $(".qrcode").qrcode(utf16to8(qrCodeStr));
+            $(".qrcode").qrcode(toUTF8(qrCodeStr));
         });
 
+        /**
+         *  保存操作
+         */
+        $(".save-qrcode").on("click",function(){
+            var name = $(".name").val();
+            canvasDownload(".qrcode canvas",name);
+        });
 
-        function utf16to8(str){
+        function canvasDownload(selector,name){
+            var canvas = document.querySelector(selector);
+            var url = canvas.toDataURL("image/png");
+
+            var a = document.createElement('a');
+            var clickEvent = new MouseEvent("click");
+
+            a.download = (name || "canvas") + ".png";
+            a.href = url;
+            a.dispatchEvent(clickEvent);
+        }
+
+        /**
+         * 解决中文乱码
+         * @param str
+         * @returns {string}
+         */
+        function toUTF8(str){
             if(!str){
                 return;
             }
