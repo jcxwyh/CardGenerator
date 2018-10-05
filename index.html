@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>名片生成</title>
+        <meta name="keywords" content="名片，名片生成">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <div>
+            <label>名字：</label><input type="input" class="name"/><br/>
+            <label>电话：</label><input type="input" class="tel"/><br/>
+            <label>公司：</label><input type="input" class="company"/><br/>
+            <label>地址：</label><input type="input" class="addr"/><br/>
+            <label>职位：</label><input type="input" class="job"/><br/>
+            <label>邮箱：</label><input type="input" class="email"/><br/>
+            <label>备注：</label><textarea class="note"></textarea><br/>
+            <button class="generate">生成</button>
+        </div>
+        <div class="qrcode">
+
+        </div>
+    </body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+    <script>
+        $(".generate").on("click",function(){
+            $(".qrcode").empty();
+            var name = $(".name").val();
+            var tel = $(".tel").val();
+            var company = $(".company").val();
+            var addr = $(".addr").val();
+            var job = $(".job").val();
+            var email = $(".email").val();
+            var note = $(".note").val();
+
+            var coreStr = "";
+            coreStr += ("FN:" + name + "\nTEL;WORK:" + tel + "\nORG:" + company + "\nADR;WORK:" + addr + "\nTITLE:" + job + "\nEMAIL:" + email+ "\nNOTE:" + note +"\n");
+            var qrCodeStr = "BEGIN:VCARD\n" + coreStr + "END:VCARD";
+            alert(qrCodeStr);
+
+            $(".qrcode").qrcode(utf16to8(qrCodeStr));
+        });
+
+
+        function utf16to8(str){
+            if(!str){
+                return;
+            }
+            var code,result=[],len=str.length;
+            for(var i=0;i<len;i++){
+                // debugger;
+                code = str.charCodeAt(i);
+
+                if(code > 0x0 && code <= 0x7F){
+                    result.push(str.charAt(i));
+                }else if(code >= 0x80 && code <= 0x7FF){
+                    result.push(
+                        String.fromCharCode(0xC0 | ((code >> 6) & 0x1F)),
+                        String.fromCharCode(0x80 | (code & 0x3F))
+                    );
+                }else if(code >= 0x800 && code <= 0xFFFF){
+                    result.push(
+                        String.fromCharCode(0xE0 | ((code >> 12) & 0xF)),
+                        String.fromCharCode(0x80 | ((code >> 6) & 0x3F)),
+                        String.fromCharCode(0x80 | (code & 0x3F))
+                    );
+                }
+            }
+            return result.join('');
+        }
+
+        function utf8ToUtf16(s){
+            if(!s){
+                return;
+            }
+            var i, codes, bytes, ret = [], len = s.length;
+            for(i = 0; i < len; i++){
+                codes = [];
+                codes.push(s.charCodeAt(i));
+                if(((codes[0] >> 7) & 0xff) == 0x0){
+                    //单字节  0xxxxxxx
+                    ret.push(s.charAt(i));
+                }else if(((codes[0] >> 5) & 0xff) == 0x6){
+                    //双字节  110xxxxx 10xxxxxx
+                    codes.push(s.charCodeAt(++i));
+                    bytes = [];
+                    bytes.push(codes[0] & 0x1f);
+                    bytes.push(codes[1] & 0x3f);
+                    ret.push(String.fromCharCode((bytes[0] << 6) | bytes[1]));
+                }else if(((codes[0] >> 4) & 0xff) == 0xe){
+                    //三字节  1110xxxx 10xxxxxx 10xxxxxx
+                    codes.push(s.charCodeAt(++i));
+                    codes.push(s.charCodeAt(++i));
+                    bytes = [];
+                    bytes.push((codes[0] << 4) | ((codes[1] >> 2) & 0xf));
+                    bytes.push(((codes[1] & 0x3) << 6) | (codes[2] & 0x3f));
+                    ret.push(String.fromCharCode((bytes[0] << 8) | bytes[1]));
+                }
+            }
+            return ret.join('');
+        }
+    </script>
+</html>
