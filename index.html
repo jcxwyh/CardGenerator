@@ -136,7 +136,7 @@
             var a = document.createElement('a');
             var clickEvent = new MouseEvent("click");
 
-            a.download = (name || "canvas") + ".png";
+            a.download = name + "_hi.png";
             a.href = url;
             a.dispatchEvent(clickEvent);
         }
